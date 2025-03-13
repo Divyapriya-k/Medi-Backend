@@ -61,28 +61,25 @@ const registerUser = async (req, res) => {
 };
 
 //api to login user
-const loginUser = async (req, res) => {
+export const loginUser = async(req,res)=>{
   try {
-    const { email, password } = req.body;
-    const user = await userModel.findOne({ email });
-
-    if (!user) {
-      return res.json({ success: false, message: "User not found" });
-    }
-
-    const isMatch = await bcrypt.compare(password, user.password);
-
-    if (isMatch) {
-      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
-      res.json({ success: true, message: "Login Successful", token });
-    } else {
-      res.json({ success: false, message: "Invalid credentials" });
-    }
+      const {email,password,} = req.body;
+      const user = await User.findOne({email})
+      if (!user) {
+              return res.status(404).json({message:"User not found"})            
+      }
+      const passwordMatch = await bcrypt.compare(password,user.password)
+      if (!passwordMatch) {
+          return res.status(400).json({message:"Invalid password"})    
+      }
+      const token = jwt.sign({_id:user._id},process.env.JWT_SECRET,{expiresIn:"1h"})
+      user.token = `https://medisync-solutions.vercel.app//${user._id}/${token}`
+      await user.save();
+      res.status(200).json({message:"user logged in successfully ",token :token})
   } catch (error) {
-    console.log(error);
-    res.json({ success: false, message: error.message });
+      res.status(500).json({message:error.message})
   }
-};
+}
 
 //api to get user fata
 const getProfile = async (req, res) => {
