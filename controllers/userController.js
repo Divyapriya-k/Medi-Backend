@@ -73,7 +73,7 @@ export const loginUser = async(req,res)=>{
           return res.status(400).json({message:"Invalid password"})    
       }
       const token = jwt.sign({_id:user._id},process.env.JWT_SECRET,{expiresIn:"1h"})
-      user.token = `https://medisync-solutions.vercel.app//${user._id}/${token}`
+      user.token = `https://fitness-clubs.vercel.app/${user._id}/${token}`
       await user.save();
       res.status(200).json({message:"user logged in successfully ",token :token})
   } catch (error) {
